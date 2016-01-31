@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="CalendarView">
+            <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="KkQ-f5-bUM">
+                    <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Tad-tC-Ugh">
+                        <size key="itemSize" width="50" height="50"/>
+                        <size key="headerReferenceSize" width="50" height="50"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                    <connections>
+                        <outlet property="dataSource" destination="iN0-l3-epB" id="r5q-Nc-B9c"/>
+                        <outlet property="delegate" destination="iN0-l3-epB" id="RaI-QK-82H"/>
+                    </connections>
+                </collectionView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="KkQ-f5-bUM" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="4SM-Hb-Zmi"/>
+                <constraint firstItem="KkQ-f5-bUM" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="BtR-LZ-Avw"/>
+                <constraint firstAttribute="trailing" secondItem="KkQ-f5-bUM" secondAttribute="trailing" id="Tms-f0-o9E"/>
+                <constraint firstItem="KkQ-f5-bUM" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="hcY-jY-KcC"/>
+                <constraint firstItem="KkQ-f5-bUM" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="qKq-gq-Hub"/>
+                <constraint firstAttribute="bottom" secondItem="KkQ-f5-bUM" secondAttribute="bottom" id="sFb-QB-y46"/>
+            </constraints>
+            <variation key="default">
+                <mask key="constraints">
+                    <exclude reference="BtR-LZ-Avw"/>
+                    <exclude reference="hcY-jY-KcC"/>
+                </mask>
+            </variation>
+            <connections>
+                <outlet property="collectionView" destination="KkQ-f5-bUM" id="Ole-Fv-TaI"/>
+            </connections>
+        </view>
+    </objects>
+</document>
