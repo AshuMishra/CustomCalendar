@@ -240,6 +240,7 @@
 	NSMutableArray *indexPathsToReload = [NSMutableArray array];
 	switch (self.selectionMode) {
 		case SelectStart: {
+			if ([indexPath isEqual:self.startDateIndexPath]) { return; }
 			NSIndexPath *previousSelected = self.startDateIndexPath;
 			self.startDateIndexPath = indexPath;
 			if (previousSelected) {
@@ -251,6 +252,7 @@
 			break;
 		}
 		case SelectEnd: {
+			if ([indexPath isEqual:self.endDateIndexPath]) { return; }
 			NSIndexPath *previousSelected = self.endDateIndexPath;
 			self.endDateIndexPath = indexPath;
 			if (previousSelected) {
