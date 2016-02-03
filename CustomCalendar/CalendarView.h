@@ -12,12 +12,23 @@ typedef NS_ENUM(NSInteger, DateSelectionMode)  {
 	SelectStart = 0, SelectEnd
 };
 
+@protocol CalendarViewProtocol;
+
 @interface CalendarView : UIView
+
+@property (nonatomic, weak) NSObject<CalendarViewProtocol> *delegate;
 
 + (CalendarView *)calendarView;
 - (void)configureForMonth:(NSInteger)numberOfMonth;
 - (NSDate *)startDate;
 - (NSDate *)endDate;
 - (void)setDateSelectionMode:(DateSelectionMode) mode;
+
+@end
+
+@protocol CalendarViewProtocol
+
+- (void)calendarView:(CalendarView *)calendarView didSelectStartDate:(NSDate *)startDate;
+- (void)calendarView:(CalendarView *)calendarView didSelectEndDate:(NSDate *)endDate;
 
 @end

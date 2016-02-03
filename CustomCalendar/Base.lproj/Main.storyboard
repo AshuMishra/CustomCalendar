@@ -18,28 +18,28 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hLB-xe-Vm9">
-                                <rect key="frame" x="40" y="69" width="42" height="20.5"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="w9Z-lj-vfx">
-                                <rect key="frame" x="132" y="64" width="60" height="30"/>
+                                <rect key="frame" x="10" y="64.5" width="60" height="30"/>
                                 <state key="normal" title="Check in"/>
                                 <connections>
                                     <action selector="handleCheckin:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kLh-4X-AfX"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hLB-xe-Vm9">
+                                <rect key="frame" x="90" y="69.5" width="42" height="20.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tbc-Pr-qsE">
-                                <rect key="frame" x="490" y="64" width="70" height="30"/>
+                                <rect key="frame" x="500" y="64" width="70" height="30"/>
                                 <state key="normal" title="Check out"/>
                                 <connections>
                                     <action selector="handleCheckout:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ktc-L6-pf4"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g9B-DF-f5n">
-                                <rect key="frame" x="398" y="69" width="42" height="20.5"/>
+                                <rect key="frame" x="438" y="69" width="42" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -48,19 +48,21 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="tbc-Pr-qsE" firstAttribute="centerY" secondItem="hLB-xe-Vm9" secondAttribute="centerY" id="3QW-2k-JO2"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="tbc-Pr-qsE" secondAttribute="trailing" constant="20" id="Qmf-Uc-Gmq"/>
+                            <constraint firstItem="hLB-xe-Vm9" firstAttribute="leading" secondItem="w9Z-lj-vfx" secondAttribute="trailing" constant="20" id="JCx-Nb-A0m"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="tbc-Pr-qsE" secondAttribute="trailing" constant="10" id="Qmf-Uc-Gmq"/>
                             <constraint firstItem="w9Z-lj-vfx" firstAttribute="centerY" secondItem="hLB-xe-Vm9" secondAttribute="centerY" id="SUn-rk-2G3"/>
                             <constraint firstItem="hLB-xe-Vm9" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="5" id="Xlr-kL-XAS"/>
-                            <constraint firstItem="tbc-Pr-qsE" firstAttribute="leading" secondItem="g9B-DF-f5n" secondAttribute="trailing" constant="50" id="YVE-ai-LHt"/>
-                            <constraint firstItem="hLB-xe-Vm9" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="20" id="gsz-4s-VGV"/>
-                            <constraint firstItem="w9Z-lj-vfx" firstAttribute="leading" secondItem="hLB-xe-Vm9" secondAttribute="trailing" constant="50" id="guq-39-xx1"/>
+                            <constraint firstItem="tbc-Pr-qsE" firstAttribute="leading" secondItem="g9B-DF-f5n" secondAttribute="trailing" constant="20" id="YVE-ai-LHt"/>
                             <constraint firstItem="g9B-DF-f5n" firstAttribute="centerY" secondItem="hLB-xe-Vm9" secondAttribute="centerY" id="lNG-jr-OXf"/>
+                            <constraint firstItem="w9Z-lj-vfx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-10" id="tKi-Gq-m9e"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Journey date" id="ZXA-qH-OgN"/>
                     <connections>
                         <outlet property="checkinButton" destination="w9Z-lj-vfx" id="Dhl-3u-iaF"/>
+                        <outlet property="checkinLabel" destination="hLB-xe-Vm9" id="qIk-s9-Ed4"/>
                         <outlet property="checkoutButton" destination="tbc-Pr-qsE" id="6fz-N5-qHx"/>
+                        <outlet property="checkoutLabel" destination="g9B-DF-f5n" id="Efq-Rp-0aK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

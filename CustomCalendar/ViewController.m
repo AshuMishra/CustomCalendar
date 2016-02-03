@@ -9,11 +9,14 @@
 #import "ViewController.h"
 #import "CalendarView.h"
 
-@interface ViewController ()
+@interface ViewController ()<CalendarViewProtocol>
 
 @property (nonatomic, strong) CalendarView *calendarView;
 @property (weak, nonatomic) IBOutlet UIButton *checkinButton;
 @property (weak, nonatomic) IBOutlet UIButton *checkoutButton;
+@property (weak, nonatomic) IBOutlet UILabel *checkoutLabel;
+@property (weak, nonatomic) IBOutlet UILabel *checkinLabel;
+@property (strong, nonatomic) NSDateFormatter *dateformatter;
 
 @end
 
@@ -24,7 +27,11 @@
 	self.calendarView = [CalendarView calendarView];
 	[self.view addSubview:self.calendarView];
 	self.calendarView.frame = CGRectMake(0, 100, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame));
-	[self.calendarView configureForMonth:13];
+	[self.calendarView configureForMonth: 13];
+	self.calendarView.delegate = self;
+	self.dateformatter = [[NSDateFormatter alloc]init];
+	self.dateformatter.dateFormat = @"dd-MM-yyyy";
+
 	[self handleCheckin:nil];
 }
 
@@ -43,6 +50,14 @@
 	self.checkinButton.tintColor = [UIColor redColor];
 	self.checkoutButton.tintColor = [UIColor blueColor];
 	[self.calendarView setDateSelectionMode:SelectStart];
+}
+
+- (void)calendarView:(CalendarView *)calendarView didSelectStartDate:(NSDate *)startDate {
+	self.checkinLabel.text = [self.dateformatter stringFromDate:startDate];
+}
+
+- (void)calendarView:(CalendarView *)calendarView didSelectEndDate:(NSDate *)endDate {
+	self.checkoutLabel.text = [self.dateformatter stringFromDate:endDate];
 }
 
 @end

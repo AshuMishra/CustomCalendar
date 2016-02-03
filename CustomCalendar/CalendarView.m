@@ -162,8 +162,10 @@
 }
 
 - (NSDate *)dateForIndexPath:(NSIndexPath *)indexPath {
-	NSInteger dateIndex = indexPath.item;
-	NSInteger monthIndex = [self.monthsArray[indexPath.section] integerValue];
+	NSInteger startIndex = [[self.startingDays objectAtIndex:indexPath.section] integerValue];
+	NSInteger dateIndex = indexPath.row - (startIndex - 1) + 1;
+
+	NSInteger monthIndex = [self.monthsArray[indexPath.section] integerValue] + 1;
 	NSInteger yearIndex = [self.yearsArray[indexPath.section] integerValue];
 	return [self dateForDateIndex:dateIndex monthIndex:monthIndex yearIndex:yearIndex];
 }
@@ -251,6 +253,9 @@
 			if (self.startDateIndexPath) {
 				[indexPathsToReload addObject:self.startDateIndexPath];
 			}
+			if ([self.delegate respondsToSelector:@selector(calendarView:didSelectStartDate:)]) {
+				[self.delegate calendarView:self didSelectStartDate:[self startDate]];
+			}
 			break;
 		}
 		case SelectEnd: {
@@ -264,6 +269,9 @@
 			}
 			if (self.endDateIndexPath) {
 				[indexPathsToReload addObject:self.endDateIndexPath];
+			}
+			if ([self.delegate respondsToSelector:@selector(calendarView:didSelectEndDate:)]) {
+				[self.delegate calendarView:self didSelectEndDate:[self endDate]];
 			}
 			break;
 		}
