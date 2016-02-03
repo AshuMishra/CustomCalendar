@@ -176,27 +176,6 @@
 	return [[NSCalendar currentCalendar] dateFromComponents:components];
 }
 
-- (void)deselectIndexPath:(NSIndexPath *)indexPath {
-	CalendarCell *cell = (CalendarCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
-	cell.imageView.image = nil;
-	cell.dateLabel.textColor = [UIColor blackColor];
-}
-
-- (void)selectIndexPath:(NSIndexPath *)indexPath {
-	CalendarCell *cell = (CalendarCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
-	if ([indexPath isEqual:self.startDateIndexPath]) {
-		NSLog(@"start index = %d", self.startDateIndexPath.item);
-		cell.imageView.image = [UIImage imageNamed:@"Right"];
-		cell.dateLabel.textColor = [UIColor whiteColor];
-	}else if ([indexPath isEqual:self.endDateIndexPath]) {
-		cell.imageView.image = [UIImage imageNamed:@"Left"];
-		cell.dateLabel.textColor = [UIColor whiteColor];
-	}else {
-		cell.imageView.image = nil;
-		cell.dateLabel.textColor = [UIColor blackColor];
-	}
-}
-
 #pragma mark - UICollectionViewDatasource methods
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -215,18 +194,22 @@
 	NSInteger dateIndex = indexPath.row - (startIndex - 1);
 	if (indexPath.row >= startIndex - 1 && dateIndex < [self.monthlyDateCount[indexPath.section] integerValue]) {
 		cell.dateLabel.text = [NSString stringWithFormat:@"%lu",(long)dateIndex + 1];
-		BOOL isOlderDate = [self isOlderDate:indexPath];
-		cell.userInteractionEnabled = !isOlderDate;
-		if ([self isSunday:indexPath]) {
-			cell.dateLabel.textColor = isOlderDate ? [UIColor grayColor] : [UIColor redColor];
-		} else {
-			cell.dateLabel.textColor = isOlderDate ? [UIColor grayColor] : [UIColor blackColor];
+		if ([indexPath isEqual:self.startDateIndexPath]) { //Configuration for start day
+			cell.imageView.image = [UIImage imageNamed:@"Right"];
+			cell.dateLabel.textColor = [UIColor whiteColor];
+		}else if ([indexPath isEqual:self.endDateIndexPath]) { //Configuration for end day
+			cell.imageView.image = [UIImage imageNamed:@"Left"];
+			cell.dateLabel.textColor = [UIColor whiteColor];
+		}else { // Configuration for normal day
+			BOOL isOlderDate = [self isOlderDate:indexPath];
+			cell.userInteractionEnabled = !isOlderDate;
+			if ([self isSunday:indexPath]) {
+				cell.dateLabel.textColor = isOlderDate ? [UIColor grayColor] : [UIColor redColor];
+			} else {
+				cell.dateLabel.textColor = isOlderDate ? [UIColor grayColor] : [UIColor blackColor];
+			}
 		}
-	} else {
-		cell.dateLabel.text = @"";
 	}
-
-	[self selectIndexPath:indexPath];
 	return cell;
 }
 
@@ -254,18 +237,32 @@
 #pragma mark - UICollectionViewDelegate methods
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+	NSMutableArray *indexPathsToReload = [NSMutableArray array];
 	switch (self.selectionMode) {
-		case SelectStart:
-			[self deselectIndexPath:self.startDateIndexPath];
+		case SelectStart: {
+			NSIndexPath *previousSelected = self.startDateIndexPath;
 			self.startDateIndexPath = indexPath;
-		break;
-
-		case SelectEnd:
-			[self deselectIndexPath:self.endDateIndexPath];
+			if (previousSelected) {
+				[indexPathsToReload addObject:previousSelected];
+			}
+			if (self.startDateIndexPath) {
+				[indexPathsToReload addObject:self.startDateIndexPath];
+			}
+			break;
+		}
+		case SelectEnd: {
+			NSIndexPath *previousSelected = self.endDateIndexPath;
 			self.endDateIndexPath = indexPath;
-		break;
+			if (previousSelected) {
+				[indexPathsToReload addObject:previousSelected];
+			}
+			if (self.endDateIndexPath) {
+				[indexPathsToReload addObject:self.endDateIndexPath];
+			}
+			break;
+		}
 	}
-	[self selectIndexPath:indexPath];
+	[self.collectionView reloadItemsAtIndexPaths:indexPathsToReload];
 }
 
 @end
