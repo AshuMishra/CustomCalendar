@@ -8,11 +8,16 @@
 
 #import <UIKit/UIKit.h>
 
-@interface CalendarView : UIView {
-	
-}
+typedef NS_ENUM(NSInteger, DateSelectionMode)  {
+	SelectStart = 0, SelectEnd
+};
+
+@interface CalendarView : UIView
 
 + (CalendarView *)calendarView;
 - (void)configureForMonth:(NSInteger)numberOfMonth;
+- (NSDate *)startDate;
+- (NSDate *)endDate;
+- (void)setDateSelectionMode:(DateSelectionMode) mode;
 
 @end

@@ -22,7 +22,7 @@
 	self.calendarView = [CalendarView calendarView];
 	[self.view addSubview:self.calendarView];
 	self.calendarView.frame = CGRectMake(0, 0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame));
-	[self.calendarView configureForMonth:8];
+	[self.calendarView configureForMonth:13];
 }
 
 - (void)didReceiveMemoryWarning {

@@ -14,15 +14,20 @@
 
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (assign, nonatomic) NSInteger numberOfMonth;
-@property (strong, nonatomic) NSArray *monthNameArray;
+@property (assign, nonatomic) DateSelectionMode selectionMode;
+@property (strong, nonatomic) NSMutableArray *monthsArray;
+@property (strong, nonatomic) NSMutableArray *yearsArray;
 @property (strong, nonatomic) NSArray *startingDays;
 @property (strong, nonatomic) NSArray *monthlyDateCount;
-@property (strong, nonatomic) NSDate *startDate;
-@property (strong, nonatomic) NSDate *endDate;
+
+@property (strong, nonatomic) NSIndexPath *startDateIndexPath;
+@property (strong, nonatomic) NSIndexPath *endDateIndexPath;
 
 @end
 
 @implementation CalendarView
+
+#pragma mark - View Life cycle methods
 
 - (void)awakeFromNib {
 	[super awakeFromNib];
@@ -38,17 +43,58 @@
 		  		 withReuseIdentifier:CalendarHeaderView.reuseIdentifier];
 }
 
+#pragma mark - Public methods
+
 + (CalendarView *)calendarView {
 	return [[[NSBundle mainBundle]loadNibNamed:@"CalendarView" owner:self options:nil] firstObject];
 }
 
 - (void)configureForMonth:(NSInteger)numberOfMonth {
 	self.numberOfMonth = numberOfMonth;
-	[self configureMonthNames];
+	[self configureDatasource];
 	[self configureStartDays];
 	[self configureMonthlyDayCount];
-	self.collectionView.allowsMultipleSelection = YES;
+	self.collectionView.allowsMultipleSelection = NO;
 	[self.collectionView reloadData];
+}
+
+- (NSDate *)startDate {
+	return [self dateForIndexPath:self.startDateIndexPath];
+}
+
+- (NSDate *)endDate {
+	return [self dateForIndexPath:self.endDateIndexPath];
+}
+
+- (void)setDateSelectionMode:(DateSelectionMode) mode {
+	self.selectionMode = mode;
+}
+
+#pragma mark - Private methods
+
+- (NSDateFormatter *)dateFormatter {
+	static NSDateFormatter *formatter;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		formatter = [[NSDateFormatter alloc]init];
+	});
+	return formatter;
+}
+
+- (void)configureDatasource {
+	NSDateComponents *yearComponents  = [[NSCalendar currentCalendar] components:NSCalendarUnitYear | NSCalendarUnitMonth  fromDate:[NSDate date]];
+	int currentYear  = [yearComponents year];
+	int currentmonth = [yearComponents month];
+	self.monthsArray = [NSMutableArray array];
+	self.yearsArray = [NSMutableArray array];
+	for(int month = currentmonth; month <= self.numberOfMonth + 1; month++) {
+		currentmonth = (month - 1) % 12;
+		[self.monthsArray addObject:[NSNumber numberWithInt:currentmonth]];
+		if (currentmonth == 0) {
+			currentYear ++;
+		}
+		[self.yearsArray addObject:[NSNumber numberWithInt:currentYear]];
+	}
 }
 
 - (void)configureStartDays {
@@ -97,20 +143,61 @@
 	return [gregorian dateFromComponents:components];
 }
 
-- (void)configureMonthNames {
-	NSDateComponents *yearComponents  = [[NSCalendar currentCalendar] components:NSCalendarUnitYear | NSCalendarUnitMonth  fromDate:[NSDate date]];
-	int currentYear  = [yearComponents year];
-	int currentmonth = [yearComponents month];
-
-	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc]init];
-	NSMutableArray *monthNames = [NSMutableArray array];
-
-	for(int months = currentmonth; months <= self.numberOfMonth; months++) {
-		NSString *name = [NSString stringWithFormat:@"%@ %i",[[dateFormatter monthSymbols]objectAtIndex: months - 1],currentYear];
-		[monthNames addObject:name];
-	}
-	self.monthNameArray = monthNames;
+- (NSInteger)currentDateIndex {
+	NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+	NSDateComponents *components = [gregorian components:(NSEraCalendarUnit | NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit) fromDate:[NSDate date]];
+	return components.day;
 }
+
+- (BOOL)isSunday:(NSIndexPath*)indexPath {
+	NSInteger startIndex = [[self.startingDays objectAtIndex:indexPath.section] integerValue];
+	NSInteger dateIndex = indexPath.row - (startIndex - 1);
+	return (dateIndex + startIndex - 1) % 7 == 0;
+}
+
+- (BOOL)isOlderDate:(NSIndexPath*)indexPath {
+	NSInteger startIndex = [[self.startingDays objectAtIndex:indexPath.section] integerValue];
+	NSInteger dateIndex = indexPath.row - (startIndex - 1);
+	return (dateIndex + 1 < [self currentDateIndex]) && (indexPath.section == 0);
+}
+
+- (NSDate *)dateForIndexPath:(NSIndexPath *)indexPath {
+	NSInteger dateIndex = indexPath.item;
+	NSInteger monthIndex = [self.monthsArray[indexPath.section] integerValue];
+	NSInteger yearIndex = [self.yearsArray[indexPath.section] integerValue];
+	return [self dateForDateIndex:dateIndex monthIndex:monthIndex yearIndex:yearIndex];
+}
+
+- (NSDate *)dateForDateIndex:(NSInteger)dateIndex monthIndex:(NSInteger)monthIndex yearIndex:(NSInteger) yearIndex {
+	NSDateComponents *components = [[NSDateComponents alloc] init];
+	[components setDay: dateIndex];
+	[components setMonth:monthIndex];
+	[components setYear:yearIndex];
+	return [[NSCalendar currentCalendar] dateFromComponents:components];
+}
+
+- (void)deselectIndexPath:(NSIndexPath *)indexPath {
+	CalendarCell *cell = (CalendarCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+	cell.imageView.image = nil;
+	cell.dateLabel.textColor = [UIColor blackColor];
+}
+
+- (void)selectIndexPath:(NSIndexPath *)indexPath {
+	CalendarCell *cell = (CalendarCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+	if ([indexPath isEqual:self.startDateIndexPath]) {
+		NSLog(@"start index = %d", self.startDateIndexPath.item);
+		cell.imageView.image = [UIImage imageNamed:@"Right"];
+		cell.dateLabel.textColor = [UIColor whiteColor];
+	}else if ([indexPath isEqual:self.endDateIndexPath]) {
+		cell.imageView.image = [UIImage imageNamed:@"Left"];
+		cell.dateLabel.textColor = [UIColor whiteColor];
+	}else {
+		cell.imageView.image = nil;
+		cell.dateLabel.textColor = [UIColor blackColor];
+	}
+}
+
+#pragma mark - UICollectionViewDatasource methods
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
 	NSInteger startIndex = [[self.startingDays objectAtIndex:section] integerValue];
@@ -122,21 +209,15 @@
 	return self.numberOfMonth;
 }
 
-- (NSInteger)currentDateIndex {
-	NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-	NSDateComponents *components = [gregorian components:(NSEraCalendarUnit | NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit) fromDate:[NSDate date]];
-	return components.day;
-}
-
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
 	CalendarCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CalendarCell.reuseIdentifier forIndexPath:indexPath];
 	NSInteger startIndex = [[self.startingDays objectAtIndex:indexPath.section] integerValue];
 	NSInteger dateIndex = indexPath.row - (startIndex - 1);
 	if (indexPath.row >= startIndex - 1 && dateIndex < [self.monthlyDateCount[indexPath.section] integerValue]) {
 		cell.dateLabel.text = [NSString stringWithFormat:@"%lu",(long)dateIndex + 1];
-		BOOL isOlderDate = (dateIndex + 1 < [self currentDateIndex]) && (indexPath.section == 0);
+		BOOL isOlderDate = [self isOlderDate:indexPath];
 		cell.userInteractionEnabled = !isOlderDate;
-		if ((dateIndex + startIndex - 1) % 7 == 0) {
+		if ([self isSunday:indexPath]) {
 			cell.dateLabel.textColor = isOlderDate ? [UIColor grayColor] : [UIColor redColor];
 		} else {
 			cell.dateLabel.textColor = isOlderDate ? [UIColor grayColor] : [UIColor blackColor];
@@ -145,11 +226,17 @@
 		cell.dateLabel.text = @"";
 	}
 
+	[self selectIndexPath:indexPath];
 	return cell;
 }
+
+
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
 	CalendarHeaderView *view = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:CalendarHeaderView.reuseIdentifier forIndexPath:indexPath];
-	view.monthNameLabel.text = [self.monthNameArray objectAtIndex:indexPath.section];
+	NSInteger monthNumber = [[self.monthsArray objectAtIndex:indexPath.section] integerValue];
+	NSInteger currentYear = [[self.yearsArray objectAtIndex:indexPath.section] integerValue];
+	NSString *name = [NSString stringWithFormat:@"%@ %li",[[[self dateFormatter] monthSymbols]objectAtIndex: monthNumber],(long)currentYear];
+	view.monthNameLabel.text = name;
 	return view;
 }
 
@@ -164,39 +251,21 @@
 	return 0.0;
 }
 
-- (NSDate *)dateForDateIndex:(NSInteger)dateIndex monthIndex:(NSInteger)monthIndex {
-	NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-	NSDateComponents *components = [gregorian components:(NSEraCalendarUnit | NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit) fromDate:[NSDate date]];
-
-	NSDateComponents *comps = [[NSDateComponents alloc] init];
-	[comps setDay: dateIndex];
-	[comps setMonth:monthIndex];
-	[comps setYear:components.year];
-	return [[NSCalendar currentCalendar] dateFromComponents:comps];
-}
+#pragma mark - UICollectionViewDelegate methods
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-	CalendarCell *cell = (CalendarCell *)[collectionView cellForItemAtIndexPath:indexPath];
-	NSDate *selectedDate = [self dateForDateIndex:[cell.dateLabel.text integerValue] monthIndex:indexPath.section];
+	switch (self.selectionMode) {
+		case SelectStart:
+			[self deselectIndexPath:self.startDateIndexPath];
+			self.startDateIndexPath = indexPath;
+		break;
 
-	if (self.startDate == nil) {
-		self.startDate = selectedDate;
-	}else if (self.endDate == nil) {
-		self.endDate = selectedDate;
+		case SelectEnd:
+			[self deselectIndexPath:self.endDateIndexPath];
+			self.endDateIndexPath = indexPath;
+		break;
 	}
-	cell.imageView.image = [selectedDate isEqual:self.startDate] ? [UIImage imageNamed:@"Right"] : [UIImage imageNamed:@"Left"];
-
-}
-
-- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
-	CalendarCell *cell = (CalendarCell *)[collectionView cellForItemAtIndexPath:indexPath];
-	NSDate *selectedDate = [self dateForDateIndex:[cell.dateLabel.text integerValue] monthIndex:indexPath.section];
-	if ([selectedDate isEqual:self.startDate]) {
-		self.startDate = nil;
-	}else if ([selectedDate isEqual:self.endDate]) {
-		self.endDate = nil;
-	}
-	cell.imageView.image = nil;
+	[self selectIndexPath:indexPath];
 }
 
 @end
