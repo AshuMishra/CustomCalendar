@@ -8,9 +8,8 @@
 
 #import "CalendarView.h"
 #import "CalendarCell.h"
-#import "CalendarHeaderView.h"
 
-@interface CalendarView()<UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout>
+@interface CalendarView()<UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (assign, nonatomic) NSInteger numberOfMonth;
@@ -23,6 +22,10 @@
 @property (strong, nonatomic) NSIndexPath *startDateIndexPath;
 @property (strong, nonatomic) NSIndexPath *endDateIndexPath;
 
+@property (weak, nonatomic) IBOutlet UIButton *previousButton;
+@property (weak, nonatomic) IBOutlet UIButton *nextButton;
+@property (weak, nonatomic) IBOutlet UILabel *monthNameLabel;
+
 @end
 
 @implementation CalendarView
@@ -33,14 +36,7 @@
 	[super awakeFromNib];
 	[self.collectionView registerClass:[CalendarCell class] forCellWithReuseIdentifier:CalendarCell.reuseIdentifier];
 	UINib *nib = [UINib nibWithNibName:@"CalendarCell" bundle: [NSBundle mainBundle]];
-	UINib *headerNib = [UINib nibWithNibName:@"CalendarHeaderView" bundle: [NSBundle mainBundle]];
 	[self.collectionView registerNib:nib forCellWithReuseIdentifier:CalendarCell.reuseIdentifier];
-	[self.collectionView registerClass:[CalendarHeaderView class]
-			forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
-				   withReuseIdentifier:CalendarHeaderView.reuseIdentifier];
-	[self.collectionView registerNib:headerNib
-		  forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
-		  		 withReuseIdentifier:CalendarHeaderView.reuseIdentifier];
 }
 
 #pragma mark - Public methods
@@ -56,6 +52,7 @@
 	[self configureMonthlyDayCount];
 	self.collectionView.allowsMultipleSelection = NO;
 	[self.collectionView reloadData];
+	[self updateMonthLabel:0];
 }
 
 - (NSDate *)startDate {
@@ -68,6 +65,29 @@
 
 - (void)setDateSelectionMode:(DateSelectionMode) mode {
 	self.selectionMode = mode;
+}
+
+- (void)showNextMonth {
+	CGPoint centerPoint =  CGPointMake(self.collectionView.center.x + self.collectionView.contentOffset.x, self.collectionView.center.y + self.collectionView.contentOffset.y);
+	NSIndexPath *centerIndexPath = [self.collectionView indexPathForItemAtPoint:centerPoint];
+	NSLog(@"center section = %@", centerIndexPath);
+	if (centerIndexPath != nil) {
+		CGRect frame = CGRectMake(self.collectionView.frame.size.width * (centerIndexPath.section + 1), 0,
+		 self.collectionView.frame.size.width, self.collectionView.frame.size.height);
+		[self.collectionView scrollRectToVisible:frame animated:YES];
+	}
+}
+
+- (void)showPreviousMonth {
+	CGPoint centerPoint =  CGPointMake(self.collectionView.center.x + self.collectionView.contentOffset.x, self.collectionView.center.y + self.collectionView.contentOffset.y);
+	NSIndexPath *centerIndexPath = [self.collectionView indexPathForItemAtPoint:centerPoint];
+	NSLog(@"center section = %@", centerIndexPath);
+	if (centerIndexPath != nil) {
+		CGRect frame = CGRectMake(self.collectionView.frame.size.width * (centerIndexPath.section - 1), 0,
+								  self.collectionView.frame.size.width, self.collectionView.frame.size.height);
+		[self.collectionView scrollRectToVisible:frame animated:YES];
+	}
+
 }
 
 #pragma mark - Private methods
@@ -83,8 +103,8 @@
 
 - (void)configureDatasource {
 	NSDateComponents *yearComponents  = [[NSCalendar currentCalendar] components:NSCalendarUnitYear | NSCalendarUnitMonth  fromDate:[NSDate date]];
-	int currentYear  = [yearComponents year];
-	int currentmonth = [yearComponents month];
+	int currentYear  = (int)[yearComponents year];
+	int currentmonth = (int)[yearComponents month];
 	self.monthsArray = [NSMutableArray array];
 	self.yearsArray = [NSMutableArray array];
 	for(int month = currentmonth; month <= self.numberOfMonth + 1; month++) {
@@ -179,15 +199,13 @@
 }
 
 #pragma mark - UICollectionViewDatasource methods
-
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+	return self.numberOfMonth;
+}
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
 	NSInteger startIndex = [[self.startingDays objectAtIndex:section] integerValue];
 	NSInteger totalDays = [[self.monthlyDateCount objectAtIndex:section] integerValue];
 	return (totalDays + startIndex-1);
-}
-
-- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-	return self.numberOfMonth;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -213,20 +231,6 @@
 		}
 	}
 	return cell;
-}
-
-
-- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
-	CalendarHeaderView *view = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:CalendarHeaderView.reuseIdentifier forIndexPath:indexPath];
-	NSInteger monthNumber = [[self.monthsArray objectAtIndex:indexPath.section] integerValue];
-	NSInteger currentYear = [[self.yearsArray objectAtIndex:indexPath.section] integerValue];
-	NSString *name = [NSString stringWithFormat:@"%@ %li",[[[self dateFormatter] monthSymbols]objectAtIndex: monthNumber],(long)currentYear];
-	view.monthNameLabel.text = name;
-	return view;
-}
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
-	return CGSizeMake(CGRectGetWidth(collectionView.frame), 80);
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -261,7 +265,9 @@
 		case SelectEnd: {
 			if ([indexPath isEqual:self.endDateIndexPath] ||
 			   (self.startDateIndexPath &&
-			   ([indexPath compare:self.startDateIndexPath] == NSOrderedAscending || [indexPath compare:self.startDateIndexPath] == NSOrderedSame))) { return; }
+			   ([indexPath compare:self.startDateIndexPath] == NSOrderedAscending || [indexPath compare:self.startDateIndexPath] == NSOrderedSame))) {
+			       return;
+			    }
 			NSIndexPath *previousSelected = self.endDateIndexPath;
 			self.endDateIndexPath = indexPath;
 			if (previousSelected) {
@@ -278,5 +284,52 @@
 	}
 	[self.collectionView reloadItemsAtIndexPaths:indexPathsToReload];
 }
+
+#pragma mark - IBActions
+
+- (IBAction)showNext:(id)sender {
+	[self shouldShowPrevious:YES];
+}
+
+- (IBAction)showPrevious:(id)sender {
+	[self shouldShowPrevious:NO];
+}
+
+- (void)shouldShowPrevious:(BOOL)previous {
+	CGPoint contentOffset = self.collectionView.contentOffset;
+	NSInteger section = (contentOffset.x + self.collectionView.center.x) / self.collectionView.frame.size.width;
+	NSInteger newSection = section;
+	if  (section >= 0 && previous) {
+		newSection ++;
+	} else if (section < self.collectionView.numberOfSections && !previous) {
+		newSection --;
+	}
+
+	CGRect frame = CGRectMake(self.collectionView.frame.size.width * (newSection), 0,
+							  self.collectionView.frame.size.width, self.collectionView.frame.size.height);
+	[self.collectionView scrollRectToVisible:frame animated:YES];
+	[self updateMonthLabel: newSection];
+
+}
+
+#pragma mark - UIScrollViewDelegte methods
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+	CGPoint contentOffset = scrollView.contentOffset;
+	NSInteger section = (contentOffset.x + self.collectionView.center.x) / self.collectionView.frame.size.width;
+	[self updateMonthLabel:section];
+}
+
+#pragma mark - Private methods
+
+- (void)updateMonthLabel:(NSInteger) index {
+	if (index >= 0 && index < self.monthsArray.count && index < self.yearsArray.count) {
+		NSInteger monthNumber = [[self.monthsArray objectAtIndex: index] integerValue];
+		NSInteger currentYear = [[self.yearsArray objectAtIndex: index] integerValue];
+		NSString *name = [NSString stringWithFormat:@"%@ %li",[[[self dateFormatter] monthSymbols]objectAtIndex: monthNumber],(long)currentYear];
+		self.monthNameLabel.text = name;
+	}
+}
+
 
 @end

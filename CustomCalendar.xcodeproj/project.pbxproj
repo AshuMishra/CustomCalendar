@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4E1AE6B11C66021300B8F717 /* FullyHorizontalFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E1AE6AF1C66021300B8F717 /* FullyHorizontalFlowLayout.m */; };
 		4E42B50B1C5E3BC00070E754 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E42B50A1C5E3BC00070E754 /* main.m */; };
 		4E42B50E1C5E3BC00070E754 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E42B50D1C5E3BC00070E754 /* AppDelegate.m */; };
 		4E42B5111C5E3BC00070E754 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E42B5101C5E3BC00070E754 /* ViewController.m */; };
@@ -41,6 +42,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4E1AE6AF1C66021300B8F717 /* FullyHorizontalFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullyHorizontalFlowLayout.m; sourceTree = "<group>"; };
+		4E1AE6B01C66021300B8F717 /* FullyHorizontalFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FullyHorizontalFlowLayout.h; sourceTree = "<group>"; };
 		4E42B5061C5E3BC00070E754 /* CustomCalendar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CustomCalendar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E42B50A1C5E3BC00070E754 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4E42B50C1C5E3BC00070E754 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -116,6 +119,8 @@
 		4E42B5081C5E3BC00070E754 /* CustomCalendar */ = {
 			isa = PBXGroup;
 			children = (
+				4E1AE6B01C66021300B8F717 /* FullyHorizontalFlowLayout.h */,
+				4E1AE6AF1C66021300B8F717 /* FullyHorizontalFlowLayout.m */,
 				4E42B50C1C5E3BC00070E754 /* AppDelegate.h */,
 				4E42B50D1C5E3BC00070E754 /* AppDelegate.m */,
 				4E42B50F1C5E3BC00070E754 /* ViewController.h */,
@@ -297,6 +302,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E1AE6B11C66021300B8F717 /* FullyHorizontalFlowLayout.m in Sources */,
 				4E42B54C1C5E49430070E754 /* CalendarView.m in Sources */,
 				4E42B5491C5E48BE0070E754 /* CalendarHeaderView.m in Sources */,
 				4E42B5111C5E3BC00070E754 /* ViewController.m in Sources */,

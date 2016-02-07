@@ -26,8 +26,8 @@
 	[super viewDidLoad];
 	self.calendarView = [CalendarView calendarView];
 	[self.view addSubview:self.calendarView];
-	self.calendarView.frame = CGRectMake(0, 100, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame));
-	[self.calendarView configureForMonth: 13];
+	self.calendarView.frame = CGRectMake(0, 100, CGRectGetWidth(self.view.frame), 300);
+	[self.calendarView configureForMonth: 8];
 	self.calendarView.delegate = self;
 	self.dateformatter = [[NSDateFormatter alloc]init];
 	self.dateformatter.dateFormat = @"dd-MM-yyyy";

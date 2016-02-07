@@ -23,6 +23,8 @@ typedef NS_ENUM(NSInteger, DateSelectionMode)  {
 - (NSDate *)startDate;
 - (NSDate *)endDate;
 - (void)setDateSelectionMode:(DateSelectionMode) mode;
+- (void)showNextMonth;
+- (void)showPreviousMonth;
 
 @end
 
