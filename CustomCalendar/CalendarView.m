@@ -8,6 +8,7 @@
 
 #import "CalendarView.h"
 #import "CalendarCell.h"
+#import "FullyHorizontalFlowLayout.h"
 
 @interface CalendarView()<UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate>
 
@@ -25,6 +26,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *previousButton;
 @property (weak, nonatomic) IBOutlet UIButton *nextButton;
 @property (weak, nonatomic) IBOutlet UILabel *monthNameLabel;
+@property (strong, nonatomic) FullyHorizontalFlowLayout *flowLayout;
 
 @end
 
@@ -37,6 +39,9 @@
 	[self.collectionView registerClass:[CalendarCell class] forCellWithReuseIdentifier:CalendarCell.reuseIdentifier];
 	UINib *nib = [UINib nibWithNibName:@"CalendarCell" bundle: [NSBundle mainBundle]];
 	[self.collectionView registerNib:nib forCellWithReuseIdentifier:CalendarCell.reuseIdentifier];
+	self.flowLayout = [[FullyHorizontalFlowLayout alloc] init];
+	[self.flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
+	self.collectionView.collectionViewLayout = self.flowLayout;
 }
 
 #pragma mark - Public methods
@@ -52,7 +57,7 @@
 	[self configureMonthlyDayCount];
 	self.collectionView.allowsMultipleSelection = NO;
 	[self.collectionView reloadData];
-	[self updateMonthLabel:0];
+	[self configureHeaderView:[self currentSection]];
 }
 
 - (NSDate *)startDate {
@@ -65,29 +70,6 @@
 
 - (void)setDateSelectionMode:(DateSelectionMode) mode {
 	self.selectionMode = mode;
-}
-
-- (void)showNextMonth {
-	CGPoint centerPoint =  CGPointMake(self.collectionView.center.x + self.collectionView.contentOffset.x, self.collectionView.center.y + self.collectionView.contentOffset.y);
-	NSIndexPath *centerIndexPath = [self.collectionView indexPathForItemAtPoint:centerPoint];
-	NSLog(@"center section = %@", centerIndexPath);
-	if (centerIndexPath != nil) {
-		CGRect frame = CGRectMake(self.collectionView.frame.size.width * (centerIndexPath.section + 1), 0,
-		 self.collectionView.frame.size.width, self.collectionView.frame.size.height);
-		[self.collectionView scrollRectToVisible:frame animated:YES];
-	}
-}
-
-- (void)showPreviousMonth {
-	CGPoint centerPoint =  CGPointMake(self.collectionView.center.x + self.collectionView.contentOffset.x, self.collectionView.center.y + self.collectionView.contentOffset.y);
-	NSIndexPath *centerIndexPath = [self.collectionView indexPathForItemAtPoint:centerPoint];
-	NSLog(@"center section = %@", centerIndexPath);
-	if (centerIndexPath != nil) {
-		CGRect frame = CGRectMake(self.collectionView.frame.size.width * (centerIndexPath.section - 1), 0,
-								  self.collectionView.frame.size.width, self.collectionView.frame.size.height);
-		[self.collectionView scrollRectToVisible:frame animated:YES];
-	}
-
 }
 
 #pragma mark - Private methods
@@ -296,28 +278,42 @@
 }
 
 - (void)shouldShowPrevious:(BOOL)previous {
-	CGPoint contentOffset = self.collectionView.contentOffset;
-	NSInteger section = (contentOffset.x + self.collectionView.center.x) / self.collectionView.frame.size.width;
+	NSInteger section =[self currentSection];
 	NSInteger newSection = section;
 	if  (section >= 0 && previous) {
 		newSection ++;
 	} else if (section < self.collectionView.numberOfSections && !previous) {
 		newSection --;
 	}
-
-	CGRect frame = CGRectMake(self.collectionView.frame.size.width * (newSection), 0,
+	CGRect frame;
+	if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionVertical) {
+		frame = CGRectMake(0, self.collectionView.frame.size.height * (newSection),
 							  self.collectionView.frame.size.width, self.collectionView.frame.size.height);
-	[self.collectionView scrollRectToVisible:frame animated:YES];
-	[self updateMonthLabel: newSection];
 
+	} else {
+		frame = CGRectMake(self.collectionView.frame.size.width * (newSection), 0,
+							  self.collectionView.frame.size.width, self.collectionView.frame.size.height);
+	}
+	[self.collectionView scrollRectToVisible:frame animated:YES];
+	[self configureHeaderView: newSection];
+
+}
+
+- (NSInteger)currentSection {
+	NSInteger section;
+	CGPoint contentOffset = self.collectionView.contentOffset;
+	if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionVertical) {
+		section = (contentOffset.y + self.collectionView.center.y) / self.collectionView.frame.size.height;
+	}else {
+		section = (contentOffset.x + self.collectionView.center.x) / self.collectionView.frame.size.width;
+	}
+	return section;
 }
 
 #pragma mark - UIScrollViewDelegte methods
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-	CGPoint contentOffset = scrollView.contentOffset;
-	NSInteger section = (contentOffset.x + self.collectionView.center.x) / self.collectionView.frame.size.width;
-	[self updateMonthLabel:section];
+	[self configureHeaderView:[self currentSection]];
 }
 
 #pragma mark - Private methods
@@ -329,6 +325,12 @@
 		NSString *name = [NSString stringWithFormat:@"%@ %li",[[[self dateFormatter] monthSymbols]objectAtIndex: monthNumber],(long)currentYear];
 		self.monthNameLabel.text = name;
 	}
+}
+
+- (void)configureHeaderView:(NSInteger)currentSection {
+	self.previousButton.enabled = currentSection > 0;
+	self.nextButton.enabled = currentSection < (self.collectionView.numberOfSections - 1);
+	[self updateMonthLabel: currentSection];
 }
 
 

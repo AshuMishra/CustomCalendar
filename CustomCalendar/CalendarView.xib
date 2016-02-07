@@ -130,7 +130,7 @@
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="KkQ-f5-bUM">
                     <rect key="frame" x="0.0" y="60" width="600" height="540"/>
                     <color key="backgroundColor" red="0.94117647058823528" green="0.94117647058823528" blue="0.94117647058823528" alpha="1" colorSpace="calibratedRGB"/>
-                    <collectionViewLayout key="collectionViewLayout" id="AwX-0w-YAd" customClass="FullyHorizontalFlowLayout"/>
+                    <collectionViewLayout key="collectionViewLayout" id="GBL-SI-vBM" customClass="FullyHorizontalFlowLayout"/>
                     <connections>
                         <outlet property="dataSource" destination="iN0-l3-epB" id="r5q-Nc-B9c"/>
                         <outlet property="delegate" destination="iN0-l3-epB" id="RaI-QK-82H"/>

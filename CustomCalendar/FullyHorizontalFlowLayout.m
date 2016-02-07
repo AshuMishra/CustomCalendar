@@ -18,21 +18,22 @@
 
 @implementation FullyHorizontalFlowLayout
 
-- (instancetype)init{
-	self = [super init];
-	if(self){
-		self.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-	}
-	return self;
-}
-
 - (void)prepareLayout {
 	[super prepareLayout];
 	self.frameForIndexPath = [NSMutableDictionary dictionary];
 	for(NSUInteger section = 0; section < [self.collectionView numberOfSections]; section++) {
 		for(NSUInteger item = 0; item < [self.collectionView numberOfItemsInSection:section]; item++) {
-			CGFloat startingX = section * self.collectionView.frame.size.width;
+			CGFloat startingX = 0.0;
 			CGFloat startingY = 0.0;
+			if (self.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
+				startingX = section * CGRectGetWidth(self.collectionView.frame);
+				startingY = 0.0;
+
+			}else {
+				startingX = 0.0;
+				startingY = section * CGRectGetHeight(self.collectionView.frame);
+
+			}
 			CGFloat width = self.collectionView.frame.size.width / 7.0;
 			NSInteger rowNumber = item / 7;
 			CGFloat originX = startingX + width * (item % 7);
@@ -76,9 +77,13 @@
 
 - (CGSize)collectionViewContentSize{
 	[super collectionViewContentSize];
+	CGSize newSize;
+	if (self.scrollDirection == UICollectionViewScrollDirectionVertical) {
+		newSize = CGSizeMake(CGRectGetWidth(self.collectionView.frame), self.collectionView.numberOfSections * CGRectGetHeight(self.collectionView.frame));
+	}else {
+		newSize = CGSizeMake(self.collectionView.numberOfSections * CGRectGetWidth(self.collectionView.frame), CGRectGetHeight(self.collectionView.frame));
+	}
 
-	CGFloat collectionViewWidth = self.collectionView.frame.size.width;
-	CGSize newSize = CGSizeMake(self.collectionView.numberOfSections * collectionViewWidth, self.collectionView.frame.size.height);
 	return newSize;
 }
 
